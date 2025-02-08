@@ -35,6 +35,7 @@ class YouTubeURL(BaseModel):
 class TranscriptText(BaseModel):
     transcript: str
     max_words: Optional[int] = 250  # Optional parameter to control summary length
+    num_topics: Optional[int] = 5  # Optional parameter to control number of topics
 
 def extract_video_id(url: str) -> Optional[str]:
     """Extract YouTube video ID from various URL formats."""
@@ -87,7 +88,7 @@ async def generate_transcript(youtube_data: YouTubeURL):
 async def summarize_transcript(transcript_data: TranscriptText):
     try:
         # Process with Google Generative AI
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.0-flash-lite-preview-02-05')
         prompt = f"""Please provide a clear and concise summary of the following transcript. 
         The summary should be approximately {transcript_data.max_words} words long and capture the main points:
 
@@ -113,7 +114,7 @@ async def summarize_transcript(transcript_data: TranscriptText):
 async def generate_flashcards(transcript_data: TranscriptText):
     try:
         # Process with Google Generative AI
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.0-flash-lite-preview-02-05')
         prompt = f"""Please generate 5 flashcards from the following transcript:
 
 {transcript_data.transcript}
@@ -139,6 +140,47 @@ Generate the response in this exact JSON format:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/extract-learning-topics")
+async def extract_learning_topics(transcript_data: TranscriptText):
+    try:
+        # Process with Google Generative AI
+        model = genai.GenerativeModel('gemini-2.0-flash-lite-preview-02-05')
+        num_topics = transcript_data.num_topics or 5
+        
+        prompt = f"""Analyze the following transcript and extract {num_topics} main learning topics. 
+        For each topic, provide relevant online learning resources (like documentation, tutorials, courses).
+
+        Transcript:
+        {transcript_data.transcript}
+
+        Generate the response in this exact JSON format:
+        [
+            {{
+                "topic": "Main Topic Name",
+                "description": "Brief description of the topic",
+                "resources": [
+                    {{
+                        "title": "Resource Title",
+                        "type": "documentation|tutorial|course|article",
+                        "url": "https://example.com/resource"
+                    }}
+                ]
+            }}
+        ]"""
+        
+        response = model.generate_content(prompt)
+        
+        # Extract text from response parts
+        topics_text = ""
+        for part in response.parts:
+            topics_text += part.text
+
+        return {
+            "learning_topics": topics_text
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
