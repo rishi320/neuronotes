@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import FAQSection from "@/components/sections/FAQSection";
 
 export default function PricingPage() {
   return (
@@ -110,6 +111,8 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
+      
+      <FAQSection />
     </div>
   );
 } 

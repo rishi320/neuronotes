@@ -104,7 +104,7 @@ export function Navbar() {
             <Button variant="ghost" className="text-foreground hover:bg-secondary/10">Log in</Button>
           </Link>
           <Link href="/signup">
-            <Button className="bg-secondary hover:bg-secondary/90 text-background">Sign up</Button>
+            <Button className="bg-secondary hover:bg-secondary/90 text-white">Sign up</Button>
           </Link>
         </div>
       </div>

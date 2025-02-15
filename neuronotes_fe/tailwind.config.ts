@@ -19,7 +19,7 @@ const config: Config = {
     },
     extend: {
       colors: {
-        background: "#EAE9E8",
+        // background: "#EAE9E8",
         secondary: "#594665",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
